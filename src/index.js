@@ -10,10 +10,24 @@ import cookieParser from "cookie-parser";
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-app.use(cors({
-  origin: "http://localhost:5173",
-  credentials: true,
-}));
+
+const allowedOrigins = [
+  "https://atlasui.pages.dev",
+  "http://localhost:5173",
+];
+
+app.use(
+  cors({
+    origin: function (origin, callback) {
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error("CORS engeli: " + origin));
+      }
+    },
+    credentials: true,
+  })
+);
 app.use(helmet());
 app.use(express.json());
 app.use(cookieParser());
