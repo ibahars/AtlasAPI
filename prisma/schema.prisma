@@ -29,7 +29,9 @@ model Task {
   id          String   @id @default(uuid())
   title       String
   description String?
-  status      String   // "todo" | "progress" | "done"
+  status      String
+  type        String   @default("task")
+  priority    String   @default("mid")
   boardId     String
   board       Board    @relation(fields: [boardId], references: [id])
   createdAt   DateTime @default(now())
