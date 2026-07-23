@@ -4,6 +4,7 @@ import prisma from "../lib/prisma.js";
 import jwt from "jsonwebtoken";
 import rateLimit from "express-rate-limit";
 import { z } from "zod";
+import authMiddleware from "../middleware/auth.middleware.js";
 
 const router = Router();
 
@@ -26,6 +27,11 @@ const loginLimiter = rateLimit({
       "Çok fazla giriş denemesi yaptınız, lütfen daha sonra tekrar deneyin.",
   },
 });
+
+const changePasswordSchema = z.object({
+  oldPassword : z.string().min(6),
+  newPassword : z.string().min(6)
+})
 
 router.post("/register", async (req, res) => {
   try {
@@ -130,4 +136,39 @@ router.post("/login", loginLimiter, async (req, res) => {
     return res.status(500).json({ message: "Sunucu hatası." });
   }
 });
+
+router.patch("/change-password", authMiddleware , async(req,res)=>{
+  try{
+    const parsed = changePasswordSchema.safeParse(req.body)
+    if(!parsed.success){
+      const fieldErrors = parsed.error.issues.map((issue)=>({
+        field: issue.path[0],
+        message: issue.message,
+      }));
+      return res.status(400).json({ message: "Geçersiz veri.", errors: fieldErrors });
+
+    }
+    const { oldPassword, newPassword } = parsed.data;
+     const user = await prisma.user.findUnique({
+      where: { id: req.user.userId },
+    });
+
+    const isOldPasswordValid = await bcrypt.compare(oldPassword, user.password);
+    if (!isOldPasswordValid) {
+      return res.status(401).json({ message: "Mevcut şifre yanlış." });
+    }
+
+    const hashedNewPassword = await bcrypt.hash(newPassword, 10);
+
+    await prisma.user.update({
+      where: { id: user.id },
+      data: { password: hashedNewPassword },
+    });
+
+    return res.status(200).json({ message: "Şifre başarıyla değiştirildi." });
+  }catch(error){
+    console.error(error);
+    return res.status(500).json({ message: "Sunucu hatası." });
+  }
+})
 export default router;
