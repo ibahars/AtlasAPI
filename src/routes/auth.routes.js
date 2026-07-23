@@ -33,6 +33,13 @@ const changePasswordSchema = z.object({
   newPassword : z.string().min(6)
 })
 
+const COOKIE_OPTIONS = {
+  httpOnly: true,
+  secure: process.env.NODE_ENV === "production",
+  sameSite: "lax",
+  maxAge: 7 * 24 * 60 * 60 * 1000, // 7 gün (ms cinsinden)
+};
+
 router.post("/register", async (req, res) => {
   try {
     const parsed = registerSchema.safeParse(req.body);
@@ -81,11 +88,12 @@ router.post("/register", async (req, res) => {
       { expiresIn: "7d" }
     );
 
+    res.cookie("token", token, COOKIE_OPTIONS);
+
     const { password: _, ...userWithoutPassword } = newUser;
 
     return res.status(201).json({
       message: "Kayıt başarılı.",
-      token,
       user: userWithoutPassword,
     });
   } catch (error) {
@@ -125,10 +133,11 @@ router.post("/login", loginLimiter, async (req, res) => {
       process.env.JWT_SECRET,
       { expiresIn: "7d" },
     );
+    res.cookie("token", token, COOKIE_OPTIONS);
+
     const { password: _, ...userWithoutPassword } = user;
     return res.status(200).json({
       message: "Giriş başarılı.",
-      token,
       user: userWithoutPassword,
     });
   } catch (error) {
@@ -171,4 +180,9 @@ router.patch("/change-password", authMiddleware , async(req,res)=>{
     return res.status(500).json({ message: "Sunucu hatası." });
   }
 })
+
+router.post("/logout", (req, res) => {
+  res.clearCookie("token", COOKIE_OPTIONS);
+  res.status(200).json({ message: "Çıkış yapıldı." });
+});
 export default router;
