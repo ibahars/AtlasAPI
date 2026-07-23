@@ -69,10 +69,17 @@ router.post("/register", async (req, res) => {
       },
     });
 
+    const token = jwt.sign(
+      { userId: newUser.id, username: newUser.username },
+      process.env.JWT_SECRET,
+      { expiresIn: "7d" }
+    );
+
     const { password: _, ...userWithoutPassword } = newUser;
 
     return res.status(201).json({
       message: "Kayıt başarılı.",
+      token,
       user: userWithoutPassword,
     });
   } catch (error) {
