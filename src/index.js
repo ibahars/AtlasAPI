@@ -12,7 +12,7 @@ const PORT = process.env.PORT || 3000;
 
 
 const allowedOrigins = [
-  "https://atlasui.pages.dev",
+  "https://atlas.ibahars.com",
   "http://localhost:5173",
 ];
 
