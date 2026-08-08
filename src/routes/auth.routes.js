@@ -5,19 +5,10 @@ import jwt from "jsonwebtoken";
 import rateLimit from "express-rate-limit";
 import { z } from "zod";
 import authMiddleware from "../middleware/auth.middleware.js";
+import { registerSchema, loginSchema, changePasswordSchema } from "../validators/auth.validators.js";
 
 const router = Router();
 
-const registerSchema = z.object({
-  username: z.string().min(3).max(20),
-  email: z.string().email(),
-  password: z.string().min(6),
-});
-
-const loginSchema = z.object({
-  email: z.string().email(),
-  password: z.string().min(6),
-});
 
 const loginLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
@@ -28,10 +19,6 @@ const loginLimiter = rateLimit({
   },
 });
 
-const changePasswordSchema = z.object({
-  oldPassword : z.string().min(6),
-  newPassword : z.string().min(6)
-})
 
 const COOKIE_OPTIONS = {
   httpOnly: true,
