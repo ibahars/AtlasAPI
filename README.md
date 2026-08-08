@@ -1,7 +1,7 @@
 # Atlas API
 
 Backend REST API for Atlas, a Kanban-style task management application. Built with Express, PostgreSQL, and Prisma ORM.
-
+**Live:** [atlas.ibahars.com](https://atlas.ibahars.com/)
 ## Features
 
 - User registration and login with JWT-based authentication
