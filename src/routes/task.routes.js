@@ -39,7 +39,7 @@ router.post("/", async (req, res) => {
   try {
     const { title, description, status, type, priority, dueDate, boardId } =
       req.body;
-    if (!title || !status || boardId) {
+    if (!title || !status || !boardId) {
       return res.status(400).json({ message: "başlık ve durum  zorunlu" });
     }
 
@@ -56,6 +56,7 @@ router.post("/", async (req, res) => {
         type: type || "task",
         priority: priority || "mid",
         dueDate: dueDate ? new Date(dueDate) : null,
+        boardId: board.id,
       },
     });
 
@@ -71,9 +72,8 @@ router.patch("/:id", async (req, res) => {
     const { id } = req.params;
     const { title, description, status, type, priority, dueDate } = req.body;
 
-
     const task = await prisma.task.findUnique({ where: { id } });
-    if (!task ) {
+    if (!task) {
       return res.status(404).json({ message: "Task bulunamadı." });
     }
 
