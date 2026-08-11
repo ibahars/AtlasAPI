@@ -11,6 +11,7 @@ async function getUserBoard(userId) {
 }
 
 router.get("/", async (req, res) => {
+
   try {
     const board = await getUserBoard(req.user.userId);
     const tasks = await prisma.task.findMany({
@@ -26,7 +27,7 @@ router.get("/", async (req, res) => {
 
 router.post("/", async (req, res) => {
   try {
-    const { title, description, status, type , priority } = req.body;
+    const { title, description, status, type , priority , dueDate } = req.body;
     if (!title || !status) {
       return res.status(400).json({ message: "başlık ve durum zorunlu" });
     }
@@ -41,6 +42,7 @@ router.post("/", async (req, res) => {
         type: type || "task",
         priority: priority || "mid",
         boardId: board.id,
+        dueDate: dueDate ? new Date(dueDate) : null,
       },
     });
 
@@ -54,7 +56,7 @@ router.post("/", async (req, res) => {
 router.patch("/:id", async (req, res) => {
   try {
     const { id } = req.params;
-    const { title, description, status , type, priority} = req.body;
+    const { title, description, status , type, priority, dueDate} = req.body;
 
     const board = await getUserBoard(req.user.userId);
     const task = await prisma.task.findUnique({ where: { id } });
@@ -65,7 +67,7 @@ router.patch("/:id", async (req, res) => {
     const updatedTask = await prisma.task.update({
       where: { id },
 
-      data: { title, description, status ,type, priority},
+      data: { title, description, status ,type, priority,dueDate: dueDate ? new Date(dueDate) : null,},
     });
     res.status(201).json(updatedTask);
   } catch (error) {
