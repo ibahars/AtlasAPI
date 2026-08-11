@@ -104,9 +104,8 @@ router.patch("/:id", async (req, res) => {
 router.delete("/:id", async (req, res) => {
   try {
     const { id } = req.params;
-
     const task = await prisma.task.findUnique({ where: { id } });
-    if (!task || task.boardId !== board.id) {
+    if (!task) {
       return res.status(404).json({ message: "Task bulunamadı." });
     }
 
