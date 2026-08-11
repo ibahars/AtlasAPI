@@ -38,3 +38,4 @@ jobs:
             git pull
             cd /root
             docker compose up -d --build
+            docker exec atlas_api npx prisma migrate deploy
