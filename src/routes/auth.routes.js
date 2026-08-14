@@ -24,7 +24,7 @@ const router = Router();
 
 const loginLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
-  max: 5,
+  max: 12,
   message: {
     message:
       "Çok fazla giriş denemesi yaptınız, lütfen daha sonra tekrar deneyin.",
@@ -32,7 +32,7 @@ const loginLimiter = rateLimit({
 });
 const forgotPasswordLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
-  max: 3,
+  max: 2,
   message: {
     message:
       "Çok fazla şifre sıfırlama isteği. Lütfen daha sonra tekrar deneyin.",
